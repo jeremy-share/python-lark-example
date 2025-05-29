@@ -1,0 +1,5 @@
+services:
+  mini_query_language:
+    build: .
+    volumes:
+      - .:/opt/mini_query_language

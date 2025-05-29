@@ -1,0 +1,56 @@
+?start: expr
+
+?expr: expr "or" term      -> or_expr
+     | term
+
+?term: term "and" factor   -> and_expr
+     | factor
+
+?factor: not_expr
+       | comparison
+       | field
+       | boolean
+       | string
+       | number
+       | bracketed_expr
+
+bracketed_expr: "(" expr ")"
+not_expr: "not" factor
+
+field: CNAME
+
+?comparison: equal_to_expr
+           | not_equal_to_expr
+           | greater_then_expr
+           | greater_then_equal_to_expr
+           | less_then_expr
+           | less_then_equal_to_expr
+
+equal_to_expr: factor "==" factor
+not_equal_to_expr: factor "!=" factor
+greater_then_expr: factor ">" factor
+greater_then_equal_to_expr: factor ">=" factor
+less_then_expr: factor "<" factor
+less_then_equal_to_expr: factor "<=" factor
+
+number: float | integer
+float: SIGNED_FLOAT
+integer: SIGNED_INT
+
+string: DOUBLE_QUOTED_STRING | SINGLE_QUOTED_STRING
+DOUBLE_QUOTED_STRING: ESCAPED_STRING
+SINGLE_QUOTED_STRING: "'" /.*?/ /(?<!\\)(\\\\)*?/ "'"  # common.ESCAPED_STRING but converted to single quotes
+
+boolean: boolean_true | boolean_false
+boolean_true: "true"
+boolean_false: "false"
+
+# https://github.com/lark-parser/lark/blob/master/lark/grammars/common.lark
+%import common.CNAME
+%import common.ESCAPED_STRING
+%import common.SIGNED_INT
+%import common.SIGNED_FLOAT
+%import common.WS
+
+%ignore WS
+
