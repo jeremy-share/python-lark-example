@@ -3,13 +3,7 @@ from typing import Any
 import pytest
 from lark import Lark
 
-from mini_query_language import get_mini_query_language_parser
 from mini_query_language.boolean_transformer import BooleanTransformer
-
-
-@pytest.fixture(name="lark_parser")
-def fixture_lark_parser() -> Lark:
-    return get_mini_query_language_parser()
 
 
 @pytest.mark.parametrize("expression,context,expected", [
