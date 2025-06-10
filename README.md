@@ -208,6 +208,12 @@ evaluate(expression, context)  # => True
 
 ```
 
+## 📄 How it works?
+
+Checkout:
+* [LARK_SYNTAX_TREE.md](documents/LARK_SYNTAX_TREE.md)
+* https://lark-parser.readthedocs.io/en/stable/
+
 ## ✅ Why This Project?
 
 This project is a good starting point for learning how to:
