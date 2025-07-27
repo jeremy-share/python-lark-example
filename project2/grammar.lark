@@ -23,7 +23,10 @@
 // In language grammar (particularly in parsing), an atom is a conventional term that refers to the smallest
 // indivisible unit or base-level expression that a larger expression can be built from.
 ?atom: boolean
-     | "(" expr ")"
+     | bracketed_expr
+
+// Parentheses override normal precedence rules
+bracketed_expr: "(" expr ")"
 
 // Boolean literals with rule aliases for clarity in the transformer
 boolean: "true"  -> boolean_true
