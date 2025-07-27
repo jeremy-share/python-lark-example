@@ -1,0 +1,32 @@
+// Entry point of the grammar — an expression.
+?start: expr
+
+// Top-level expression delegates to the lowest-precedence operator: "or"
+?expr: or_expr
+
+// "or" expressions: left-associative
+// This gives "or" the lowest precedence — it's evaluated last unless overridden by parentheses.
+?or_expr: and_expr
+        | or_expr "or" and_expr   -> or_expr
+
+// "and" expressions: higher precedence than "or"
+// Still left-associative.
+?and_expr: not_expr
+         | and_expr "and" not_expr -> and_expr
+
+// "not" expressions: highest precedence
+// This is a unary operator, so it binds tightly to a single operand.
+?not_expr: "not" not_expr         -> not_expr
+         | atom                   // fallback to literals or grouped subexpressions
+
+// Base-level units: a boolean literal or a parenthesized sub-expression
+?atom: boolean
+     | "(" expr ")"
+
+// Boolean literals with rule aliases for clarity in the transformer
+boolean: "true"  -> boolean_true
+       | "false" -> boolean_false
+
+// Ignore whitespace
+%import common.WS
+%ignore WS
