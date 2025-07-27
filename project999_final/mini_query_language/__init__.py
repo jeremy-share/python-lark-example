@@ -8,7 +8,7 @@ from mini_query_language.boolean_transformer import BooleanTransformer
 
 def get_mini_query_language_parser() -> Lark:
     project_dir = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
-    with open(f"{project_dir}/mini_query_language.lark") as f:
+    with open(f"{project_dir}/grammar.lark") as f:
         grammar = f.read()
     return Lark(grammar, start="start", parser="lalr")
 

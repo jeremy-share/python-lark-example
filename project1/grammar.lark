@@ -1,0 +1,18 @@
+// Define the entry point of the grammar
+?start: expr   // Start rule: an expression (which may be a single value or a sequence)
+
+// An expression is a factor (true/false) optionally followed by one or more operators and factors.
+// This makes it a flat list — there’s no operator precedence like "and binds tighter than or".
+// Everything is just left-to-right.
+?expr: boolean (BOOL_OP boolean)*
+
+// Define the literal boolean operators we support
+BOOL_OP: "and" | "or"
+
+boolean: boolean_true | boolean_false
+boolean_true: "true"
+boolean_false: "false"
+
+// Import whitespace handling and ignore it between tokens
+%import common.WS
+%ignore WS
