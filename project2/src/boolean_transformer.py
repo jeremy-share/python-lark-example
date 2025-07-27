@@ -1,9 +1,4 @@
-from lark import Transformer, v_args, Token
-
-NUMBER_TYPE = int | float
-
-PRIMITIVE_TYPE = str | int | float | bool | None
-
+from lark import Transformer, v_args
 
 class BooleanTransformer(Transformer):
     """
