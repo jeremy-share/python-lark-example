@@ -20,6 +20,8 @@
          | atom                   // fallback to literals or grouped subexpressions
 
 // Base-level units: a boolean literal or a parenthesized sub-expression
+// In language grammar (particularly in parsing), an atom is a conventional term that refers to the smallest
+// indivisible unit or base-level expression that a larger expression can be built from.
 ?atom: boolean
      | "(" expr ")"
 

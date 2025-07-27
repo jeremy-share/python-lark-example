@@ -1,24 +1,38 @@
+// Entry point of the grammar.
+// A complete expression begins with the lowest-precedence operator: `or`
 ?start: expr
 
+// OR has the lowest precedence and binds the loosest.
+// Left-associative: `a or b or c` => ((a or b) or c)
 ?expr: expr "or" term      -> or_expr
      | term
 
-?term: term "and" factor   -> and_expr
-     | factor
+// AND has higher precedence than OR.
+// Left-associative: `a and b and c` => ((a and b) and c)
+?term: term "and" not_expr -> and_expr
+     | not_expr
 
-?factor: not_expr
-       | comparison
-       | field
-       | boolean
-       | string
-       | number
-       | bracketed_expr
+// NOT has the highest precedence (unary operator).
+// `not not x` is valid and parsed as: not_expr → not not_expr
+?not_expr: "not" not_expr  -> not_expr
+         | atom            // If not a "not", fall back to a base expression
 
+// Atom is the most basic, indivisible expression.
+// This includes literals, fields, parenthesized expressions, or comparisons.
+?atom: comparison
+     | field
+     | boolean
+     | string
+     | number
+     | bracketed_expr
+
+// Parentheses override normal precedence rules
 bracketed_expr: "(" expr ")"
-not_expr: "not" factor
 
+// Field names (identifiers), e.g., `age`, `country`
 field: CNAME
 
+// Comparison expressions between two atoms
 ?comparison: equal_to_expr
            | not_equal_to_expr
            | greater_then_expr
@@ -26,31 +40,39 @@ field: CNAME
            | less_then_expr
            | less_then_equal_to_expr
 
-equal_to_expr: factor "==" factor
-not_equal_to_expr: factor "!=" factor
-greater_then_expr: factor ">" factor
-greater_then_equal_to_expr: factor ">=" factor
-less_then_expr: factor "<" factor
-less_then_equal_to_expr: factor "<=" factor
+// Individual comparison operators (all binary, infix)
+// Each accepts two `atom`s (e.g., `field == "value"` or `5 < 10`)
+equal_to_expr: atom "==" atom
+not_equal_to_expr: atom "!=" atom
+greater_then_expr: atom ">" atom
+greater_then_equal_to_expr: atom ">=" atom
+less_then_expr: atom "<" atom
+less_then_equal_to_expr: atom "<=" atom
 
+// Numbers can be integers or floats
 number: float | integer
 float: SIGNED_FLOAT
 integer: SIGNED_INT
 
+// Strings can be either double-quoted (ESCAPED_STRING) or single-quoted with relaxed escaping
 string: DOUBLE_QUOTED_STRING | SINGLE_QUOTED_STRING
 DOUBLE_QUOTED_STRING: ESCAPED_STRING
-SINGLE_QUOTED_STRING: "'" /.*?/ /(?<!\\)(\\\\)*?/ "'"  # common.ESCAPED_STRING but converted to single quotes
 
+// SINGLE_QUOTED_STRING uses a regex that allows non-escaped single quotes, except when followed by an odd number of backslashes
+SINGLE_QUOTED_STRING: "'" /.*?/ /(?<!\\)(\\\\)*?/ "'"  // Custom handling of escaped single quotes
+
+// Boolean literals
 boolean: boolean_true | boolean_false
 boolean_true: "true"
 boolean_false: "false"
 
-# https://github.com/lark-parser/lark/blob/master/lark/grammars/common.lark
-%import common.CNAME
-%import common.ESCAPED_STRING
+// Common imports from Lark's built-in grammar
+// https://github.com/lark-parser/lark/blob/master/lark/grammars/common.lark
+%import common.CNAME           // valid identifier names
+%import common.ESCAPED_STRING  // double-quoted string with escapes
 %import common.SIGNED_INT
 %import common.SIGNED_FLOAT
 %import common.WS
 
+// Ignore whitespace between tokens
 %ignore WS
-

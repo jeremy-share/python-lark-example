@@ -118,7 +118,7 @@ Compare two expressions using:
 | `>`      | Greater than        |
 | `>=`     | Greater or equal    |
 
-Comparisons can be between any two **factors**, which may be:
+Comparisons can be between any two **atoms**, which may be:
 - A field
 - A literal (string, number, boolean)
 - A grouped expression (e.g., `(x > 5)`)
