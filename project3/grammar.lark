@@ -1,0 +1,62 @@
+// Entry point of the grammar.
+// A complete expression begins with the lowest-precedence operator: `or`
+?start: expr
+
+// OR has the lowest precedence and binds the loosest.
+// Left-associative: `a or b or c` => ((a or b) or c)
+?expr: expr "or" term      -> or_expr
+     | term
+
+// AND has higher precedence than OR.
+// Left-associative: `a and b and c` => ((a and b) and c)
+?term: term "and" not_expr -> and_expr
+     | not_expr
+
+// NOT has the highest precedence (unary operator).
+// `not not x` is valid and parsed as: not_expr → not not_expr
+?not_expr: "not" not_expr  -> not_expr
+         | atom            // If not a "not", fall back to a base expression
+
+// Atom is the most basic, indivisible expression.
+// This includes literals, fields, parenthesized expressions, or comparisons.
+?atom: field
+     | boolean
+     | bracketed_expr
+
+// Parentheses override normal precedence rules
+bracketed_expr: "(" expr ")"
+
+// Field names (identifiers), e.g., `age`, `country`
+field: CNAME
+// Q) Why true and false get tokenized as booleans, not as variables (CNAME)?
+// A) It's based on rule ordering and specificity, longer or more specific tokens declared earlier take precedence over general ones.
+//      In Lark, terminals (like CNAME, "true", "false") are tokenized before parsing — and the tokenizer resolves ambiguity based on:
+//      1. Order of declaration in the grammar
+//      2. Token priority (Lark resolves literal strings before generic regex-based rules)
+//      3. Longest match wins — but specific named tokens win over generic ones of equal length
+//      "true" and "false" are literal string terminals, not part of CNAME.
+//       Lark will prefer a literal terminal match before falling back to matching CNAME.
+//      Best Practice:
+//      -> Always declare literal tokens like "true" or "==" before general ones like CNAME or regexes
+//      -> Avoid overlapping token patterns (e.g. don’t define "true" as both a literal and a possible identifier)
+
+// Strings can be either double-quoted (ESCAPED_STRING) or single-quoted with relaxed escaping
+string: DOUBLE_QUOTED_STRING | SINGLE_QUOTED_STRING
+DOUBLE_QUOTED_STRING: ESCAPED_STRING
+
+// SINGLE_QUOTED_STRING uses a regex that allows non-escaped single quotes, except when followed by an odd number of backslashes
+SINGLE_QUOTED_STRING: "'" /.*?/ /(?<!\\)(\\\\)*?/ "'"  // Custom handling of escaped single quotes
+
+// Boolean literals
+boolean: boolean_true | boolean_false
+boolean_true: "true"
+boolean_false: "false"
+
+// Common imports from Lark's built-in grammar
+// https://github.com/lark-parser/lark/blob/master/lark/grammars/common.lark
+%import common.CNAME           // valid identifier names
+%import common.ESCAPED_STRING  // double-quoted string with escapes
+%import common.WS
+
+// Ignore whitespace between tokens
+%ignore WS
