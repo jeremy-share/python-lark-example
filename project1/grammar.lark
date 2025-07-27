@@ -1,18 +1,25 @@
-// Define the entry point of the grammar
-?start: expr   // Start rule: an expression (which may be a single value or a sequence)
+// Entry point of the grammar.
+// An expression is a single boolean or a sequence of booleans connected by "and"/"or".
+?start: expr
 
-// An expression is a factor (true/false) optionally followed by one or more operators and factors.
-// This makes it a flat list — there’s no operator precedence like "and binds tighter than or".
-// Everything is just left-to-right.
+// expr is a flat sequence: boolean [op boolean]...
+// This does not implement operator precedence — it is evaluated strictly left to right.
 ?expr: boolean (BOOL_OP boolean)*
 
-// Define the literal boolean operators we support
+// Supported boolean operators (no precedence between them)
 BOOL_OP: "and" | "or"
 
+// Boolean literals
 boolean: boolean_true | boolean_false
 boolean_true: "true"
 boolean_false: "false"
 
-// Import whitespace handling and ignore it between tokens
+// Ignore whitespace between tokens
 %import common.WS
 %ignore WS
+
+// =====================================================================================================================
+// Key Clarifications:
+//?expr produces a flat list of tokens ([boolean, "and", boolean, "or", boolean, ...]) — no nested tree nodes that distinguish precedence.
+//Operator precedence is not enforced in the grammar.
+//? means the rule is inline, so it won't create a separate tree node unless needed.
