@@ -1,6 +1,6 @@
-from lark import Transformer, v_args
+from lark import Transformer, v_args, Token
 
-class BooleanTransformer(Transformer):
+class BooleanTransformer(Transformer[Token, bool]):
     """
     Transform a parsed expression (tree) into an equivalent boolean expression.
     """

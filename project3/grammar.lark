@@ -40,13 +40,6 @@ field: CNAME
 //      -> Always declare literal tokens like "true" or "==" before general ones like CNAME or regexes
 //      -> Avoid overlapping token patterns (e.g. don’t define "true" as both a literal and a possible identifier)
 
-// Strings can be either double-quoted (ESCAPED_STRING) or single-quoted with relaxed escaping
-string: DOUBLE_QUOTED_STRING | SINGLE_QUOTED_STRING
-DOUBLE_QUOTED_STRING: ESCAPED_STRING
-
-// SINGLE_QUOTED_STRING uses a regex that allows non-escaped single quotes, except when followed by an odd number of backslashes
-SINGLE_QUOTED_STRING: "'" /.*?/ /(?<!\\)(\\\\)*?/ "'"  // Custom handling of escaped single quotes
-
 // Boolean literals
 boolean: boolean_true | boolean_false
 boolean_true: "true"
